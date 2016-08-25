@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Game</title>
+	<link rel="stylesheet" type="text/css" href="project.css">
+	<script type="text/javascript">
+
+
+
+window.onload = function func()
+{   
+     
+    
+
+	var canvas= document.getElementById("canvas");
+	var context= canvas.getContext("2d");
+    
+    context.fillStyle ="red";
+	context.fillRect(5,5,345,20);
+
+	context.fillStyle ="red";
+	context.fillRect(450,5,345,20);
+	
+    var terrain= new Image();
+    terrain.onload = function()
+    {
+    	context.drawImage(terrain, 0,600,800,200);
+    }
+	terrain.src="sprites/terrain.png";
+
+   var fighter1=
+    { imgStand: new Image(),
+      imgPunch: new Image()
+    };//creating an object
+
+    fighter1.imgStand.onload = function()
+	{   
+
+	context.drawImage(fighter1.imgStand, 10,450);
+	}
+
+	fighter1.imgPunch.onload = function()
+	{   
+
+    context.clearRect(10,450,80,150);
+	context.drawImage(fighter1.imgPunch, 10,450);
+	}
+    fighter1.imgStand.src="sprites/stand.png";
+    fighter1.imgPunch.src="sprites/punch.png";
+
+    
+}		
+
+
+
+
+
+
+
+
+
+
+	</script>
+</head>
+<body style="background-color:black">
+<canvas id="canvas" width="800" height="800">xx</canvas>
+</body>
+</html>
