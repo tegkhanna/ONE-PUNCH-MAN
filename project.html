@@ -42,7 +42,18 @@ function checkKeyDown(x)
 		x=83;
 	else if(x=='d') 
 		x=68;
-
+	else if(x==' ') 
+		x=32;
+	else if(x == '8')
+		x = 104;
+	else if(x == '4')
+		x=100;
+	else if(x=='5')
+		x=101;
+	else if(x=='6') 
+		x=102;
+	else if(x=='p') 
+		x=80;
 	if(down.indexOf(x)!=-1)
 		return true;
 	else
@@ -52,16 +63,56 @@ function checkKeyDown(x)
     {
     	imgStand1: new Image(),
     	imgStand2: new Image(),
+    	imgStand1b: new Image(),
+    	imgStand2b: new Image(),
      	imgPunch: new Image(),
+     	imgPunchb: new Image(),
      	x:10,
      	y:450,
      	speed : 5,
+     	uVer : 0,
+     	aVer : 0,
      	dir : 1,
      	move:0,
      	curr:1,
+     	timeTillNextPunch : 0,
+     	isInAir : false,
+     	isPunching : false,
+     	jump: function()
+     	{	
+     		if(!this.isInAir)
+     		{	
+     			this.uVer = 14;
+     			this.aVer = 0.5;
+     			this.isInAir = true;
+     		}
+     	},
+     	punch : function()
+     	{
+     		this.isPunching = true;
+     	},
      	update: function()
      	{
-     		if(checkKeyDown('d'))
+     		if(checkKeyDown('q') && this.timeTillNextPunch == 0)
+     		{
+     			this.punch();
+     			this.timeTillNextPunch = 30;
+     		}
+     		else if (checkKeyDown('d') && checkKeyDown('w'))
+     		{
+     			this.move = 1;
+     			this.dir = 1;
+     			this.jump();	
+     		}
+     		else if (checkKeyDown('a') && checkKeyDown('w'))
+     		{
+     			this.move = 1;
+     			this.dir = -1;
+     			this.jump();	
+     		}
+     		else if(checkKeyDown('w'))
+     			this.jump();
+     		else if(checkKeyDown('d'))
      		{
      			this.move = 1;
      			this.dir = 1;
@@ -85,13 +136,136 @@ function checkKeyDown(x)
      		{
      			this.x=750;this.move=0;
      		}
+
+     		this.y-=this.uVer;
+     		this.uVer = this.uVer - this.aVer;
+
+     		if(this.y>=450)
+     		{
+     			this.uVer = 0;
+     			this.aVer = 0;
+     			this.y = 450;
+     			this.isInAir = false;
+     		}
+
+     		if(checkKeyDown(' ') && this.timeTillNextPunch == 0)
+     		{
+     			this.punch();
+     			this.timeTillNextPunch = 25;
+     		}
+     		if(this.timeTillNextPunch!=0)
+     		{
+     			this.timeTillNextPunch--;
+     			if(this.timeTillNextPunch == 20)
+     				this.isPunching = false;
+     		}
+
      	}
     };//creating an object
 
 
      var fighter2=
-    { imgStand: new Image(),
-      imgPunch: new Image()
+    {
+    	imgStand1: new Image(),
+    	imgStand2: new Image(),
+    	imgStand1b: new Image(),
+    	imgStand2b: new Image(),
+     	imgPunch: new Image(),
+     	imgPunchb: new Image(),
+     	x:690,
+     	y:450,
+     	speed : 5,
+     	uVer : 0,
+     	aVer : 0,
+     	dir : -1,
+     	move:0,
+     	curr:1,
+     	timeTillNextPunch : 0,
+     	isInAir : false,
+     	isPunching : false,
+     	jump: function()
+     	{	
+     		if(!this.isInAir)
+     		{	
+     			this.uVer = 14;
+     			this.aVer = 0.5;
+     			this.isInAir = true;
+     		}
+     	},
+     	punch : function()
+     	{
+     		this.isPunching = true;
+     	},
+     	update: function()
+     	{
+     		if(checkKeyDown('p') && this.timeTillNextPunch == 0)
+     		{
+     			this.punch();
+     			this.timeTillNextPunch = 30;
+     		}
+     		else if (checkKeyDown('6') && checkKeyDown('8'))
+     		{
+     			this.move = 1;
+     			this.dir = 1;
+     			this.jump();	
+     		}
+     		else if (checkKeyDown('4') && checkKeyDown('8'))
+     		{
+     			this.move = 1;
+     			this.dir = -1;
+     			this.jump();	
+     		}
+     		else if(checkKeyDown('8'))
+     			this.jump();
+     		else if(checkKeyDown('6'))
+     		{
+     			this.move = 1;
+     			this.dir = 1;
+     		}
+     		else if(checkKeyDown('4'))
+     		{
+     			this.move = 1;
+     			this.dir = -1;
+     		}
+  
+     		if(this.x>=10 && this.x<=750 && this.move==1)
+     		{
+     			this.x+=(this.dir*this.speed);
+     			this.move=0;
+     		}
+     		else if(this.x<10)
+     		{
+     			this.x=10;move=0;
+     		}
+     		else if(this.x>750)
+     		{
+     			this.x=750;this.move=0;
+     		}
+
+     		this.y-=this.uVer;
+     		this.uVer = this.uVer - this.aVer;
+
+     		if(this.y>=450)
+     		{
+     			this.uVer = 0;
+     			this.aVer = 0;
+     			this.y = 450;
+     			this.isInAir = false;
+     		}
+
+     		if(checkKeyDown(' ') && this.timeTillNextPunch == 0)
+     		{
+     			this.punch();
+     			this.timeTillNextPunch = 25;
+     		}
+     		if(this.timeTillNextPunch!=0)
+     		{
+     			this.timeTillNextPunch--;
+     			if(this.timeTillNextPunch == 20)
+     				this.isPunching = false;
+     		}
+
+     	}
     };//creating an object
 
 
@@ -125,13 +299,22 @@ function init()
 	terrain.src="sprites/terrain.png";
 }
 
-function initFighter1()
+function initFighters()
 {
 
   
-    fighter1.imgStand1.src="sprites/stand1.png";
-    fighter1.imgStand2.src="sprites/stand2.png";
-    fighter1.imgPunch.src="sprites/punch.png";
+    fighter1.imgStand1.src="sprites/blue/stand1.png";
+    fighter1.imgStand2.src="sprites/blue/stand2.png";
+    fighter1.imgStand1b.src="sprites/blue/stand1b.png";
+    fighter1.imgStand2b.src="sprites/blue/stand2b.png";
+    fighter1.imgPunch.src="sprites/blue/punch.png";
+    fighter1.imgPunchb.src="sprites/blue/punchb.png";
+    fighter2.imgStand1.src="sprites/hue/stand1.png";
+    fighter2.imgStand2.src="sprites/hue/stand2.png";
+    fighter2.imgStand1b.src="sprites/hue/stand1b.png";
+    fighter2.imgStand2b.src="sprites/hue/stand2b.png";
+    fighter2.imgPunch.src="sprites/hue/punch.png";
+    fighter2.imgPunchb.src="sprites/hue/punchb.png";
 
 }
 
@@ -139,36 +322,137 @@ function gameLoop()
 {
 
 		checkInput();
+		drawFighters();
 
-		var ctx = gameWindow.context;
-		ctx.clearRect(fighter1.x,fighter1.y,80,150);
-		fighter1.update();
-		if(fighter1.curr <= 8)
-		{
-		 	ctx.drawImage(fighter1.imgStand1, fighter1.x,fighter1.y);
-		 	fighter1.curr ++;
-		 }
-		 else
-		 {
-		 	
-		 	ctx.drawImage(fighter1.imgStand2, fighter1.x,fighter1.y);
-		 	fighter1.curr++;
-		 	if(fighter1.curr == 16)
-		 	{
-		 		fighter1.curr=0;
-		 	}
-		 }
-		 if(down.length > 0)
-			 console.log(down);
+		
+		
 		
 	
 }
 
+function drawFighters()
+{
+	var ctx = gameWindow.context;
+		if(!fighter1.isPunching)
+		{
+			ctx.clearRect(fighter1.x,fighter1.y,80,150);
+			ctx.clearRect(fighter2.x,fighter2.y,80,150);
+		}
+		else
+		{
+			ctx.clearRect(fighter1.x,fighter1.y,150,150);
+			ctx.clearRect(fighter2.x,fighter2.y,150,150);
+		}
+		if(!fighter2.isPunching)
+		{
+			
+			ctx.clearRect(fighter2.x,fighter2.y,80,150);
+		}
+		else
+		{
+			ctx.clearRect(fighter2.x,fighter2.y,150,150);
+		}
+		fighter1.update();
+		fighter2.update();
+		if(fighter1.dir == 1)
+		{
+			if(fighter1.curr <= 8 && !fighter1.isPunching)
+			{
+			 	ctx.drawImage(fighter1.imgStand1, fighter1.x,fighter1.y);
+			 	fighter1.curr ++;
+			}
+			else if(!fighter1.isPunching)
+			{
+			 	
+			 	ctx.drawImage(fighter1.imgStand2, fighter1.x,fighter1.y);
+			 	fighter1.curr++;
+			 	if(fighter1.curr == 16)
+			 	{
+			 		fighter1.curr=0;
+			 	}
+			}
+			else if(fighter1.isPunching)
+			{
+				ctx.drawImage(fighter1.imgPunch, fighter1.x,fighter1.y);
+			}
+		}
+		else
+		{
+			if(fighter1.curr <= 8 && !fighter1.isPunching)
+			{
+			 	ctx.drawImage(fighter1.imgStand1b, fighter1.x,fighter1.y);
+			 	fighter1.curr ++;
+			}
+			else if(!fighter1.isPunching)
+			{
+			 	
+			 	ctx.drawImage(fighter1.imgStand2b, fighter1.x,fighter1.y);
+			 	fighter1.curr++;
+			 	if(fighter1.curr == 16)
+			 	{
+			 		fighter1.curr=0;
+			 	}
+			}
+			else if(fighter1.isPunching)
+			{
+				ctx.drawImage(fighter1.imgPunchb, fighter1.x,fighter1.y);
+			}
+		}
+
+
+
+
+
+		if(fighter2.dir == 1)
+		{
+			if(fighter2.curr <= 8 && !fighter2.isPunching)
+			{
+			 	ctx.drawImage(fighter2.imgStand1, fighter2.x,fighter2.y);
+			 	fighter2.curr ++;
+			}
+			else if(!fighter2.isPunching)
+			{
+			 	
+			 	ctx.drawImage(fighter2.imgStand2, fighter2.x,fighter2.y);
+			 	fighter2.curr++;
+			 	if(fighter2.curr == 16)
+			 	{
+			 		fighter2.curr=0;
+			 	}
+			}
+			else if(fighter2.isPunching)
+			{
+				ctx.drawImage(fighter2.imgPunch, fighter2.x,fighter2.y);
+			}
+		}
+		else
+		{
+			if(fighter2.curr <= 8 && !fighter2.isPunching)
+			{
+			 	ctx.drawImage(fighter2.imgStand1b, fighter2.x,fighter2.y);
+			 	fighter2.curr ++;
+			}
+			else if(!fighter2.isPunching)
+			{
+			 	
+			 	ctx.drawImage(fighter2.imgStand2b, fighter2.x,fighter2.y);
+			 	fighter2.curr++;
+			 	if(fighter2.curr == 16)
+			 	{
+			 		fighter2.curr=0;
+			 	}
+			}
+			else if(fighter2.isPunching)
+			{
+				ctx.drawImage(fighter2.imgPunchb, fighter2.x,fighter2.y);
+			}
+		}
+}
 
 function run()
 {
 	init();
- 	initFighter1();
+ 	initFighters();
  	setInterval(gameLoop, 34);
 }
 
