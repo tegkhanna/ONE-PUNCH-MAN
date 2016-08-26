@@ -7,6 +7,7 @@
 
 
 	//game window in form of object
+	///MAIN GAME OBJECTS---> GAME WINDOW, GAME STATE(PLAY,LOSE,WHO WINS), GAME FUNCTIONS ---->INITIALIZER,GAMELOOP, RUN, ONLOAD FUNCTION(RUN)
 	var gameWindow = 
 	{
 		canvas : null,
@@ -20,6 +21,7 @@
 				this.canvas.tabIndex = 1000;
 			}
 	};
+
 	var gameState = 
 	{
 		PLAY:1,
@@ -28,7 +30,48 @@
 		WinFighter1:0
 	};
 
+	function init()//init window
+	{
+		gameWindow.init();
+		initFighters();  
+	}
+	function gameLoop()//Main GAME loop
+	{
+		checkInput();
+		update();
+	}
+	function run()
+	{
+		init();
+	 	setInterval(gameLoop, 34);
+	}
+	window.onload = function func()
+	{
+ 		run();//runs when system staRTS
+	}
+	function drawText(text)//SCREEN WRITING FN
+	{
+		var ctx = gameWindow.context;
+		ctx.font = "30px Comic Sans MS";
+		ctx.fillStyle = "red";
+		ctx.textAlign = "center";
+		ctx.fillText(text, gameWindow.canvas.width/2, gameWindow.canvas.height/2);
+	}
+
+
+
+
+	
+	///BEGIN EVENT MANAGER..TRIED TO PUT IN A OBJECT, BUT down IS DOING PROBLEM AS AN OBJECT ELEMENT
+
 	var down = [];//array  having down key 
+	function checkInput()//BROWSER EVENT REGISTER
+	{
+		gameWindow.canvas.addEventListener("keydown", keyIsDown, false);
+		gameWindow.canvas.addEventListener("keyup", keyIsUp, false);
+		//gameWindow.canvas.addEventListener("keypress", keyIsPress, false);
+	}
+
 	function keyIsDown(e)//adding key to donw
 	{
 		if(down.indexOf(e.keyCode) == -1)
@@ -71,11 +114,21 @@
 		else
 			return false;
 	}
-	 var fighter1=//fighter 1 object..has images..posiition..velocities..updates
+	
+	///EVEN MANAGER OVER
+
+
+
+
+
+	/*FIGHTER OBJECTS->(TO DO LATER MAKE AGENT OBJECT AND MAKE NESTED OBJECT AS FIGHTER1 AND FIGHTER2)
+	(THIS WILL HELP IN CREATING JUST ONE DAMAGE AND COLLISION CONTROL)(I THINK)(SOMETHING RELATED TO INHERRITANCE)*/
+
+	var fighter1=//fighter 1 object..has images..posiition..velocities..updates
     {
     	imgStand1: new Image(),
     	imgStand2: new Image(),
-    	imgStand1b: new Image(),
+    	imgStand1b: new Image(),//B=TURNED AROUND
     	imgStand2b: new Image(),
      	imgPunch: new Image(),
      	imgPunchb: new Image(),
@@ -83,14 +136,14 @@
      	imgWin: new Image(),
      	x:10,
      	y:450,
-     	width:80,
-     	speed : 5,
+     	width:80,//CHANGES WITH PUNCH STATE
+     	speed : 5,//INCREASE LATER
      	health:100,
      	uVer : 0,
      	aVer : 0,
      	dir : 1,
-     	move:0,
-     	curr:1,
+     	shouldMove:0,
+     	currImageTick:1,//without this image flip toooo fast
      	timeTillNextPunch : 0,
      	isInAir : false,
      	isPunching : false,
@@ -99,13 +152,13 @@
      		if(!this.isInAir)
      		{	
      			this.uVer = 14;
-     			this.aVer = 0.5;
+     			this.aVer = 0.5;//change soon
      			this.isInAir = true;
      		}
      	},
      	punch : function()
      	{
-     		this.isPunching = true;
+     		this.isPunching = true;//function to set this false at bottom
      		this.width = 150;
      	},
      	update: function()
@@ -117,13 +170,13 @@
      		}
      		else if (checkKeyDown('d') && checkKeyDown('w'))
      		{
-     			this.move = 1;
+     			this.shouldMove = 1;
      			this.dir = 1;
      			this.jump();	
      		}
      		else if (checkKeyDown('a') && checkKeyDown('w'))
      		{
-     			this.move = 1;
+     			this.shouldMove = 1;
      			this.dir = -1;
      			this.jump();	
      		}
@@ -131,27 +184,27 @@
      			this.jump();
      		else if(checkKeyDown('d'))
      		{
-     			this.move = 1;
+     			this.shouldMove = 1;
      			this.dir = 1;
      		}
      		else if(checkKeyDown('a'))
      		{
-     			this.move = 1;
+     			this.shouldMove = 1;
      			this.dir = -1;
      		}
   
-     		if(this.x>=10 && this.x<=750 && this.move==1)
+     		if(this.x>=10 && this.x<=750 && this.shouldMove==1)
      		{
      			this.x+=(this.dir*this.speed);
-     			this.move=0;
+     			this.shouldMove=0;
      		}
      		else if(this.x<10)
      		{
-     			this.x=10;move=0;
+     			this.x=10;shouldMove=0;
      		}
      		else if(this.x>750)
      		{
-     			this.x=750;this.move=0;
+     			this.x=750;this.shouldMove=0;
      		}
 
      		this.y-=this.uVer;
@@ -182,7 +235,9 @@
 
      	},
      	isCollidng:function()
-		{
+		{	//I KNEW WHAT I AM DOING.. NOW I SEEM TO FORGET .. THANSK TO MY PURSE AND PHONE.. THEY HELPED IN DESIGNING THIS :P
+			/UPDATE COMMENTS PLSSSS/
+			/P.S NO Y PUSH BACK :P UNNOTICABLE ;)/
 			var t1 =  (this.x-fighter2.x)/2; var t2 = (this.y - fighter1.y)/2;
 			if(this.dir == 1 && this.x < fighter2.x)
 			{
@@ -213,7 +268,7 @@
 				if(this.dir!=fighter2.dir)
 					fighter2.getDamaged(10);
 				else
-					fighter2.getDamaged(50);
+					fighter2.getDamaged(25);
 			}
 		},
 		getDamaged: function(x)
@@ -228,8 +283,8 @@
 		}
     };//creating an object
 
-
-     var fighter2=
+    //REFER FIGHTER 1 FOR COMMENTS
+    var fighter2=
     {
     	imgStand1: new Image(),
     	imgStand2: new Image(),
@@ -247,8 +302,8 @@
      	aVer : 0,
      	dir : -1,
      	health : 100,
-     	move:0,
-     	curr:1,
+     	shouldMove:0,
+     	currImageTick:1,
      	timeTillNextPunch : 0,
      	isInAir : false,
      	isPunching : false,
@@ -275,13 +330,13 @@
      		}
      		else if (checkKeyDown('6') && checkKeyDown('8'))
      		{
-     			this.move = 1;
+     			this.shouldMove = 1;
      			this.dir = 1;
      			this.jump();	
      		}
      		else if (checkKeyDown('4') && checkKeyDown('8'))
      		{
-     			this.move = 1;
+     			this.shouldMove = 1;
      			this.dir = -1;
      			this.jump();	
      		}
@@ -289,27 +344,27 @@
      			this.jump();
      		else if(checkKeyDown('6'))
      		{
-     			this.move = 1;
+     			this.shouldMove = 1;
      			this.dir = 1;
      		}
      		else if(checkKeyDown('4'))
      		{
-     			this.move = 1;
+     			this.shouldMove = 1;
      			this.dir = -1;
      		}
   
-     		if(this.x>=10 && this.x<=750 && this.move==1)
+     		if(this.x>=10 && this.x<=750 && this.shouldMove==1)
      		{
      			this.x+=(this.dir*this.speed);
-     			this.move=0;
+     			this.shouldMove=0;
      		}
      		else if(this.x<10)
      		{
-     			this.x=10;move=0;
+     			this.x=10;shouldMove=0;
      		}
      		else if(this.x>750)
      		{
-     			this.x=750;this.move=0;
+     			this.x=750;this.shouldMove=0;
      		}
 
      		this.y-=this.uVer;
@@ -366,7 +421,7 @@
 				if(this.dir!=fighter1.dir)
 					fighter1.getDamaged(10);
 				else
-					fighter1.getDamaged(50);
+					fighter1.getDamaged(25);
 			}
 
 		},
@@ -383,261 +438,209 @@
     };//creating an object
 
 
-window.onload = function func()
-{   
-     
- 	run();//runs when system staRTS
-	
 
 
-}		
-
-function init()//init window
-{
-
-
-	gameWindow.init();
-		
-   
-}
-
-function initFighters()//init fighters(sprite address)
-{
-
-  
-    fighter1.imgStand1.src="sprites/blue/stand1.png";
-    fighter1.imgStand2.src="sprites/blue/stand2.png";
-    fighter1.imgStand1b.src="sprites/blue/stand1b.png";
-    fighter1.imgStand2b.src="sprites/blue/stand2b.png";
-    fighter1.imgPunch.src="sprites/blue/punch.png";
-    fighter1.imgPunchb.src="sprites/blue/punchb.png";
-    fighter1.imgWin.src="sprites/blue/win.png";
-    fighter1.imgLose.src="sprites/blue/lose.png";
-    fighter2.imgStand1.src="sprites/hue/stand1.png";
-    fighter2.imgStand2.src="sprites/hue/stand2.png";
-    fighter2.imgStand1b.src="sprites/hue/stand1b.png";
-    fighter2.imgStand2b.src="sprites/hue/stand2b.png";
-    fighter2.imgPunch.src="sprites/hue/punch.png";
-    fighter2.imgPunchb.src="sprites/hue/punchb.png";
-    fighter2.imgWin.src="sprites/hue/win.png";
-    fighter2.imgLose.src="sprites/hue/lose.png";
-
-}
-
-function gameLoop()//Main GAME loop
-{
-		
-		
-		checkInput();
-		
-		
-		update();
-	
-}
-			
-
-function clearScreen()
-{
-		var ctx = gameWindow.context;
-		ctx.clearRect(0,0,800,800);
-}
-function update()//update fighters
-{
-
-
-		clearScreen();
-		fighter1.isCollidng();
-		fighter2.isCollidng();
-		fighter1.doDamage();
-		fighter2.doDamage();
-		if(gameState.WinFighter1 == 0 && gameState.WinFighter2 == 0)
-		{	
-			fighter1.update();
-			fighter2.update();
-		}
-		drawHealth();
-		drawFighter();
-		checkWin();
-
-
-}
-function drawFighter()
-{
-
-		var ctx = gameWindow.context;
-    	ctx.drawImage(gameWindow.terrain, 0,600,800,200);
-		if(gameState.WinFighter1 == 1)
-		{
-			ctx.drawImage(fighter1.imgWin,fighter1.x,fighter1.y);
-			ctx.drawImage(fighter2.imgLose,fighter2.x,fighter2.y + 99);
-				
-		}
-		else if(gameState.WinFighter2 == 1)
-		{
-			ctx.drawImage(fighter2.imgWin,fighter2.x,fighter2.y);
-			ctx.drawImage(fighter1.imgLose,fighter1.x,fighter1.y + 99);
-		}
-
-		else if(fighter1.dir == 1)
-		{
-			
-			if(fighter1.curr <= 8 && !fighter1.isPunching)
-			{
-			 	ctx.drawImage(fighter1.imgStand1, fighter1.x,fighter1.y);
-			 	fighter1.curr ++;
-			}
-			else if(!fighter1.isPunching)
-			{
-			 	
-			 	ctx.drawImage(fighter1.imgStand2, fighter1.x,fighter1.y);
-			 	fighter1.curr++;
-			 	if(fighter1.curr == 16)
-			 	{
-			 		fighter1.curr=0;
-			 	}
-			}
-			else if(fighter1.isPunching)
-			{
-				ctx.drawImage(fighter1.imgPunch, fighter1.x,fighter1.y);
-			}
-		}
-		else
-		{
-			if(fighter1.curr <= 8 && !fighter1.isPunching)
-			{
-			 	ctx.drawImage(fighter1.imgStand1b, fighter1.x,fighter1.y);
-			 	fighter1.curr ++;
-			}
-			else if(!fighter1.isPunching)
-			{
-			 	
-			 	ctx.drawImage(fighter1.imgStand2b, fighter1.x,fighter1.y);
-			 	fighter1.curr++;
-			 	if(fighter1.curr == 16)
-			 	{
-			 		fighter1.curr=0;
-			 	}
-			}
-			else if(fighter1.isPunching)
-			{
-				ctx.drawImage(fighter1.imgPunchb, fighter1.x,fighter1.y);
-			}
-		}
-
-
-
-
-		if(gameState.WinFighter1 == 1)
-		{
-			ctx.drawImage(fighter1.imgWin,fighter1.x,fighter1.y);
-			ctx.drawImage(fighter2.imgLose,fighter2.x,fighter2.y + 99);
-				
-		}
-		else if(gameState.WinFighter2 == 1)
-		{
-			ctx.drawImage(fighter2.imgWin,fighter2.x,fighter2.y);
-			ctx.drawImage(fighter1.imgLose,fighter1.x,fighter1.y + 99);
-		}
-		else if(fighter2.dir == 1)
-		{	
-			
-			if(fighter2.curr <= 8 && !fighter2.isPunching)
-			{
-			 	ctx.drawImage(fighter2.imgStand1, fighter2.x,fighter2.y);
-			 	fighter2.curr ++;
-			}
-			else if(!fighter2.isPunching)
-			{
-			 	
-			 	ctx.drawImage(fighter2.imgStand2, fighter2.x,fighter2.y);
-			 	fighter2.curr++;
-			 	if(fighter2.curr == 16)
-			 	{
-			 		fighter2.curr=0;
-			 	}
-			}
-			else if(fighter2.isPunching)
-			{
-				ctx.drawImage(fighter2.imgPunch, fighter2.x,fighter2.y);
-			}
-		}
-		else
-		{
-			if(fighter2.curr <= 8 && !fighter2.isPunching)
-			{
-			 	ctx.drawImage(fighter2.imgStand1b, fighter2.x,fighter2.y);
-			 	fighter2.curr ++;
-			}
-			else if(!fighter2.isPunching)
-			{
-			 	
-			 	ctx.drawImage(fighter2.imgStand2b, fighter2.x,fighter2.y);
-			 	fighter2.curr++;
-			 	if(fighter2.curr == 16)
-			 	{
-			 		fighter2.curr=0;
-			 	}
-			}
-			else if(fighter2.isPunching)
-			{
-				ctx.drawImage(fighter2.imgPunchb, fighter2.x,fighter2.y);
-			}
-		}
-}
-function drawHealth()
-{
-	var ctx = gameWindow.context;
-	ctx.clearRect(5,5,345,20)
-	ctx.clearRect(450,5,345,20)
-	ctx.fillStyle ="red";
-	if(345*fighter1.health/100 > 0 )
-		ctx.fillRect(5,5,345*fighter1.health/100,20);
-	else
-		ctx.fillRect(5,5,0,20);
-	ctx.fillStyle ="red";
-	if(345*fighter2.health/100 > 0)
-		ctx.fillRect(450,5,345*fighter2.health/100,20);
-	else
-		ctx.fillRect(450,5,0,20);
-}
-function run()
-{
-	init();
- 	initFighters();
- 	setInterval(gameLoop, 34);
-}
-
-function checkWin()
-{
-	if(gameState.WinFighter1)
+	function initFighters()//init fighters(sprite address)
 	{
-		drawText("FIGHTER 1 WON!!");
+	    fighter1.imgStand1.src="sprites/blue/stand1.png";
+	    fighter1.imgStand2.src="sprites/blue/stand2.png";
+	    fighter1.imgStand1b.src="sprites/blue/stand1b.png";
+	    fighter1.imgStand2b.src="sprites/blue/stand2b.png";
+	    fighter1.imgPunch.src="sprites/blue/punch.png";
+	    fighter1.imgPunchb.src="sprites/blue/punchb.png";
+	    fighter1.imgWin.src="sprites/blue/win.png";
+	    fighter1.imgLose.src="sprites/blue/lose.png";
+	    fighter2.imgStand1.src="sprites/hue/stand1.png";
+	    fighter2.imgStand2.src="sprites/hue/stand2.png";
+	    fighter2.imgStand1b.src="sprites/hue/stand1b.png";
+	    fighter2.imgStand2b.src="sprites/hue/stand2b.png";
+	    fighter2.imgPunch.src="sprites/hue/punch.png";
+	    fighter2.imgPunchb.src="sprites/hue/punchb.png";
+	    fighter2.imgWin.src="sprites/hue/win.png";
+	    fighter2.imgLose.src="sprites/hue/lose.png";
 	}
-	else if(gameState.WinFighter2)
+
+
+			
+
+	function clearScreen()
 	{
-		drawText("FIGHTER 2 WON!!");
+			var ctx = gameWindow.context;
+			ctx.clearRect(0,0,800,800);
 	}
-}
-
-function drawText(text)
-{
-	var ctx = gameWindow.context;
-	ctx.font = "30px Comic Sans MS";
-	ctx.fillStyle = "red";
-	ctx.textAlign = "center";
-	ctx.fillText(text, gameWindow.canvas.width/2, gameWindow.canvas.height/2);
-}
-
-function checkInput()
-{
-	gameWindow.canvas.addEventListener("keydown", keyIsDown, false);
-	gameWindow.canvas.addEventListener("keyup", keyIsUp, false);
-	//gameWindow.canvas.addEventListener("keypress", keyIsPress, false);
-}
+	function update()//CLEAR SCREEN, COLLISSION CHECK, DAMAGE CHECK, UPDATE, DRAW FIGHTERS ON SCREEN,DRAW FIGHTER HEALTH, CHECK WIN
+	{
 
 
+			clearScreen();
+			fighter1.isCollidng();
+			fighter2.isCollidng();
+			fighter1.doDamage();
+			fighter2.doDamage();
+			if(gameState.WinFighter1 == 0 && gameState.WinFighter2 == 0)
+			{	
+				fighter1.update();
+				fighter2.update();
+			}
+			drawHealth();
+			drawFighter();
+			checkWin();
+	}
+	function drawFighter()//DRAWS UPDATED FIGHTERS
+	{
+
+			var ctx = gameWindow.context;
+			//WAITING FOR BACK GROUND
+	    	ctx.drawImage(gameWindow.terrain, 0,600,800,200);//TERRAIN
 
 
+	    	//PLAYER 1
+			if(gameState.WinFighter1 == 1)//WIN IMAGES
+			{
+				ctx.drawImage(fighter1.imgWin,fighter1.x,fighter1.y);
+				ctx.drawImage(fighter2.imgLose,fighter2.x,fighter2.y + 99);
+					
+			}
+			else if(gameState.WinFighter2 == 1)
+			{
+				ctx.drawImage(fighter2.imgWin,fighter2.x,fighter2.y);
+				ctx.drawImage(fighter1.imgLose,fighter1.x,fighter1.y + 99);
+			}
+
+			else if(fighter1.dir == 1)
+			{
+				
+				if(fighter1.currImageTick <= 8 && !fighter1.isPunching)
+				{
+				 	ctx.drawImage(fighter1.imgStand1, fighter1.x,fighter1.y);
+				 	fighter1.currImageTick ++;
+				}
+				else if(!fighter1.isPunching)
+				{
+				 	
+				 	ctx.drawImage(fighter1.imgStand2, fighter1.x,fighter1.y);
+				 	fighter1.currImageTick++;
+				 	if(fighter1.currImageTick == 16)
+				 	{
+				 		fighter1.currImageTick=0;
+				 	}
+				}
+				else if(fighter1.isPunching)
+				{
+					ctx.drawImage(fighter1.imgPunch, fighter1.x,fighter1.y);
+				}
+			}
+			else
+			{
+				if(fighter1.currImageTick <= 8 && !fighter1.isPunching)
+				{
+				 	ctx.drawImage(fighter1.imgStand1b, fighter1.x,fighter1.y);
+				 	fighter1.currImageTick ++;
+				}
+				else if(!fighter1.isPunching)
+				{
+				 	
+				 	ctx.drawImage(fighter1.imgStand2b, fighter1.x,fighter1.y);
+				 	fighter1.currImageTick++;
+				 	if(fighter1.currImageTick == 16)
+				 	{
+				 		fighter1.currImageTick=0;
+				 	}
+				}
+				else if(fighter1.isPunching)
+				{
+					ctx.drawImage(fighter1.imgPunchb, fighter1.x,fighter1.y);
+				}
+			}
+
+
+
+
+			if(gameState.WinFighter1 == 1)
+			{
+				ctx.drawImage(fighter1.imgWin,fighter1.x,fighter1.y);
+				ctx.drawImage(fighter2.imgLose,fighter2.x,fighter2.y + 99);
+					
+			}
+			else if(gameState.WinFighter2 == 1)
+			{
+				ctx.drawImage(fighter2.imgWin,fighter2.x,fighter2.y);
+				ctx.drawImage(fighter1.imgLose,fighter1.x,fighter1.y + 99);
+			}
+			else if(fighter2.dir == 1)
+			{	
+				
+				if(fighter2.currImageTick <= 8 && !fighter2.isPunching)
+				{
+				 	ctx.drawImage(fighter2.imgStand1, fighter2.x,fighter2.y);
+				 	fighter2.currImageTick ++;
+				}
+				else if(!fighter2.isPunching)
+				{
+				 	
+				 	ctx.drawImage(fighter2.imgStand2, fighter2.x,fighter2.y);
+				 	fighter2.currImageTick++;
+				 	if(fighter2.currImageTick == 16)
+				 	{
+				 		fighter2.currImageTick=0;
+				 	}
+				}
+				else if(fighter2.isPunching)
+				{
+					ctx.drawImage(fighter2.imgPunch, fighter2.x,fighter2.y);
+				}
+			}
+			else
+			{
+				if(fighter2.currImageTick <= 8 && !fighter2.isPunching)
+				{
+				 	ctx.drawImage(fighter2.imgStand1b, fighter2.x,fighter2.y);
+				 	fighter2.currImageTick ++;
+				}
+				else if(!fighter2.isPunching)
+				{
+				 	
+				 	ctx.drawImage(fighter2.imgStand2b, fighter2.x,fighter2.y);
+				 	fighter2.currImageTick++;
+				 	if(fighter2.currImageTick == 16)
+				 	{
+				 		fighter2.currImageTick=0;
+				 	}
+				}
+				else if(fighter2.isPunching)
+				{
+					ctx.drawImage(fighter2.imgPunchb, fighter2.x,fighter2.y);
+				}
+			}
+	}
+	function drawHealth()//DRAW HEALTH OF FIGHTERS(RED BAR)
+	{
+		var ctx = gameWindow.context;
+		ctx.clearRect(5,5,345,20)
+		ctx.clearRect(450,5,345,20)
+		ctx.fillStyle ="red";
+		if(345*fighter1.health/100 > 0 )
+			ctx.fillRect(5,5,345*fighter1.health/100,20);
+		else
+			ctx.fillRect(5,5,0,20);
+		ctx.fillStyle ="red";
+		if(345*fighter2.health/100 > 0)
+			ctx.fillRect(450,5,345*fighter2.health/100,20);
+		else
+			ctx.fillRect(450,5,0,20);
+	}
+
+	function checkWin()//CHECK WINNING AND WRITE ON SCREE
+	{
+		if(gameState.WinFighter1)
+		{
+			drawText("FIGHTER 1 WON!!");
+		}
+		else if(gameState.WinFighter2)
+		{
+			drawText("FIGHTER 2 WON!!");
+		}
+	}
 
 	</script>
 </head>
