@@ -11,58 +11,66 @@
 	{
 		canvas : null,
 		context : null,
+		terrain : new Image(),
 		init : function()//initializes the canvas and context
 			{
 				this.canvas = document.getElementById("canvas");
 				this.context = this.canvas.getContext("2d");
+				this.terrain.src="sprites/terrain.png";
 				this.canvas.tabIndex = 1000;
 			}
 	};
-
+	var gameState = 
+	{
+		PLAY:1,
+		PAUSE:0,
+		WinFighter2:0,
+		WinFighter1:0
+	};
 
 	var down = [];//array  having down key 
 	function keyIsDown(e)//adding key to donw
-{
-	if(down.indexOf(e.keyCode) == -1)
 	{
-		down.push(e.keyCode);
+		if(down.indexOf(e.keyCode) == -1)
+		{
+			down.push(e.keyCode);
+		}
 	}
-}
-function keyIsUp(e)//remove key from down
-{
-	if(down.indexOf(e.keyCode) != -1)
+	function keyIsUp(e)//remove key from down
 	{
-		down.splice(down.indexOf(e.keyCode), 1);
+		if(down.indexOf(e.keyCode) != -1)
+		{
+			down.splice(down.indexOf(e.keyCode), 1);
+		}
 	}
-}
 
-function checkKeyDown(x)//checks that a given key x is down
-{
-	if(x == 'w')
-		x = 87;
-	else if(x == 'a')
-		x=65;
-	else if(x=='s')
-		x=83;
-	else if(x=='d') 
-		x=68;
-	else if(x==' ') 
-		x=32;
-	else if(x == '8')
-		x = 104;
-	else if(x == '4')
-		x=100;
-	else if(x=='5')
-		x=101;
-	else if(x=='6') 
-		x=102;
-	else if(x=='p') 
-		x=80;
-	if(down.indexOf(x)!=-1)
-		return true;
-	else
-		return false;
-}
+	function checkKeyDown(x)//checks that a given key x is down
+	{
+		if(x == 'w')
+			x = 87;
+		else if(x == 'a')
+			x=65;
+		else if(x=='s')
+			x=83;
+		else if(x=='d') 
+			x=68;
+		else if(x==' ') 
+			x=32;
+		else if(x == '8')
+			x = 104;
+		else if(x == '4')
+			x=100;
+		else if(x=='5')
+			x=101;
+		else if(x=='6') 
+			x=102;
+		else if(x=='p') 
+			x=80;
+		if(down.indexOf(x)!=-1)
+			return true;
+		else
+			return false;
+	}
 	 var fighter1=//fighter 1 object..has images..posiition..velocities..updates
     {
     	imgStand1: new Image(),
@@ -71,6 +79,8 @@ function checkKeyDown(x)//checks that a given key x is down
     	imgStand2b: new Image(),
      	imgPunch: new Image(),
      	imgPunchb: new Image(),
+     	imgLose: new Image(),
+     	imgWin: new Image(),
      	x:10,
      	y:450,
      	width:80,
@@ -173,13 +183,13 @@ function checkKeyDown(x)//checks that a given key x is down
      	},
      	isCollidng:function()
 		{
-			var t1 =  (this.x-fighter2.x)/2; var t2 = (this.y - fighter1.y)/2
+			var t1 =  (this.x-fighter2.x)/2; var t2 = (this.y - fighter1.y)/2;
 			if(this.dir == 1 && this.x < fighter2.x)
 			{
 				if((this.x + this.width - fighter2.x) > 0 && Math.abs(fighter1.y - fighter2.y) <80)
 				{
 					if(!this.isPunching)
-						this.x+=t1;fighter2.x-=t1;
+						this.x+=t1/4;fighter2.x-=t1/4;
 					return true;
 				}
 			}
@@ -189,7 +199,7 @@ function checkKeyDown(x)//checks that a given key x is down
 				{
 					//t1+=fighter2.width/2;
 					if(!this.isPunching)
-						this.x+=t1;fighter2.x-=t1;
+						this.x+=t1/4;fighter2.x-=t1/4;
 					return true;
 				}
 			}
@@ -200,10 +210,10 @@ function checkKeyDown(x)//checks that a given key x is down
 		{
 			if(this.isPunching && this.isCollidng())
 			{
-				if(this.dir==fighter2.dir)
-					fighter2.getDamaged(50);
+				if(this.dir!=fighter2.dir)
+					fighter2.getDamaged(10);
 				else
-					fighter2.getDamaged(25);
+					fighter2.getDamaged(50);
 			}
 		},
 		getDamaged: function(x)
@@ -212,6 +222,8 @@ function checkKeyDown(x)//checks that a given key x is down
 			if(this.health <= 0)
 			{
 				console.log("youwin fighter2");
+				gameState.PAUSE = 1;
+				gameState.WinFighter2 = 1;
 			}
 		}
     };//creating an object
@@ -225,6 +237,8 @@ function checkKeyDown(x)//checks that a given key x is down
     	imgStand2b: new Image(),
      	imgPunch: new Image(),
      	imgPunchb: new Image(),
+     	imgLose: new Image(),
+     	imgWin: new Image(),
      	x:690,
      	y:450,
      	width:80,
@@ -322,13 +336,13 @@ function checkKeyDown(x)//checks that a given key x is down
      	},
      	isCollidng:function()
 		{
-			var t1 =  (this.x-fighter1.x)/2; var t2 = (this.y - fighter2.y)/2
+			var t1 =  (this.x-fighter1.x)/2; var t2 = (this.y - fighter2.y)/2;
 			if(this.dir == 1 && this.x < fighter1.x)
 			{
 				if((this.x + this.width - fighter1.x) > 0 && Math.abs(fighter2.y - fighter1.y) <80)
 				{
 					if(!this.isPunching)
-						this.x+=t1;fighter1.x-=t1;
+						this.x+=t1/4;fighter1.x-=t1/4;
 					return true;
 				}
 			}
@@ -338,7 +352,7 @@ function checkKeyDown(x)//checks that a given key x is down
 				{
 					//t1+=fighter2.width/2;
 					if(!this.isPunching)
-						this.x+=t1;fighter1.x-=t1;
+						this.x+=t1/4;fighter1.x-=t1/4;
 					return true;
 				}
 			}
@@ -350,9 +364,9 @@ function checkKeyDown(x)//checks that a given key x is down
 			if(this.isPunching && this.isCollidng())
 			{
 				if(this.dir!=fighter1.dir)
-					fighter1.getDamaged(50);
+					fighter1.getDamaged(10);
 				else
-					fighter1.getDamaged(25);
+					fighter1.getDamaged(50);
 			}
 
 		},
@@ -362,6 +376,8 @@ function checkKeyDown(x)//checks that a given key x is down
 			if(this.health <= 0)
 			{
 				console.log("youwin fighter 1");
+				gameState.PAUSE = 1;
+				gameState.WinFighter1 = 1;
 			}
 		}
     };//creating an object
@@ -381,20 +397,8 @@ function init()//init window
 
 
 	gameWindow.init();
-	
-    var ctx = gameWindow.context;
-    ctx.fillStyle ="red";
-	ctx.fillRect(5,5,345,20);
-
-	ctx.fillStyle ="red";
-	ctx.fillRect(450,5,345,20);
-	
-    var terrain= new Image();
-    terrain.onload = function()
-    {
-    	ctx.drawImage(terrain, 0,600,800,200);
-    }
-	terrain.src="sprites/terrain.png";
+		
+   
 }
 
 function initFighters()//init fighters(sprite address)
@@ -407,59 +411,76 @@ function initFighters()//init fighters(sprite address)
     fighter1.imgStand2b.src="sprites/blue/stand2b.png";
     fighter1.imgPunch.src="sprites/blue/punch.png";
     fighter1.imgPunchb.src="sprites/blue/punchb.png";
+    fighter1.imgWin.src="sprites/blue/win.png";
+    fighter1.imgLose.src="sprites/blue/lose.png";
     fighter2.imgStand1.src="sprites/hue/stand1.png";
     fighter2.imgStand2.src="sprites/hue/stand2.png";
     fighter2.imgStand1b.src="sprites/hue/stand1b.png";
     fighter2.imgStand2b.src="sprites/hue/stand2b.png";
     fighter2.imgPunch.src="sprites/hue/punch.png";
     fighter2.imgPunchb.src="sprites/hue/punchb.png";
+    fighter2.imgWin.src="sprites/hue/win.png";
+    fighter2.imgLose.src="sprites/hue/lose.png";
 
 }
 
 function gameLoop()//Main GAME loop
 {
-
+		
+		
 		checkInput();
-		drawFighters();
-		
-
 		
 		
-		
+		update();
 	
 }
+			
 
-function drawFighters()//update fighters
+function clearScreen()
+{
+		var ctx = gameWindow.context;
+		ctx.clearRect(0,0,800,800);
+}
+function update()//update fighters
 {
 
-	var ctx = gameWindow.context;
-		if(!fighter1.isPunching)
-		{
-			ctx.clearRect(fighter1.x,fighter1.y,80,150);
-			ctx.clearRect(fighter2.x,fighter2.y,80,150);
-		}
-		else
-		{
-			ctx.clearRect(fighter1.x,fighter1.y,150,150);
-			ctx.clearRect(fighter2.x,fighter2.y,150,150);
-		}
-		if(!fighter2.isPunching)
-		{
-			
-			ctx.clearRect(fighter2.x,fighter2.y,80,150);
-		}
-		else
-		{
-			ctx.clearRect(fighter2.x,fighter2.y,150,150);
-		}
+
+		clearScreen();
 		fighter1.isCollidng();
 		fighter2.isCollidng();
 		fighter1.doDamage();
 		fighter2.doDamage();
-		fighter1.update();
-		fighter2.update();
-		if(fighter1.dir == 1)
+		if(gameState.WinFighter1 == 0 && gameState.WinFighter2 == 0)
+		{	
+			fighter1.update();
+			fighter2.update();
+		}
+		drawHealth();
+		drawFighter();
+		checkWin();
+
+
+}
+function drawFighter()
+{
+
+		var ctx = gameWindow.context;
+    	ctx.drawImage(gameWindow.terrain, 0,600,800,200);
+		if(gameState.WinFighter1 == 1)
 		{
+			ctx.drawImage(fighter1.imgWin,fighter1.x,fighter1.y);
+			ctx.drawImage(fighter2.imgLose,fighter2.x,fighter2.y + 99);
+				
+		}
+		else if(gameState.WinFighter2 == 1)
+		{
+			ctx.drawImage(fighter2.imgWin,fighter2.x,fighter2.y);
+			ctx.drawImage(fighter1.imgLose,fighter1.x,fighter1.y + 99);
+		}
+
+		else if(fighter1.dir == 1)
+		{
+			
 			if(fighter1.curr <= 8 && !fighter1.isPunching)
 			{
 			 	ctx.drawImage(fighter1.imgStand1, fighter1.x,fighter1.y);
@@ -506,9 +527,20 @@ function drawFighters()//update fighters
 
 
 
-
-		if(fighter2.dir == 1)
+		if(gameState.WinFighter1 == 1)
 		{
+			ctx.drawImage(fighter1.imgWin,fighter1.x,fighter1.y);
+			ctx.drawImage(fighter2.imgLose,fighter2.x,fighter2.y + 99);
+				
+		}
+		else if(gameState.WinFighter2 == 1)
+		{
+			ctx.drawImage(fighter2.imgWin,fighter2.x,fighter2.y);
+			ctx.drawImage(fighter1.imgLose,fighter1.x,fighter1.y + 99);
+		}
+		else if(fighter2.dir == 1)
+		{	
+			
 			if(fighter2.curr <= 8 && !fighter2.isPunching)
 			{
 			 	ctx.drawImage(fighter2.imgStand1, fighter2.x,fighter2.y);
@@ -552,7 +584,22 @@ function drawFighters()//update fighters
 			}
 		}
 }
-
+function drawHealth()
+{
+	var ctx = gameWindow.context;
+	ctx.clearRect(5,5,345,20)
+	ctx.clearRect(450,5,345,20)
+	ctx.fillStyle ="red";
+	if(345*fighter1.health/100 > 0 )
+		ctx.fillRect(5,5,345*fighter1.health/100,20);
+	else
+		ctx.fillRect(5,5,0,20);
+	ctx.fillStyle ="red";
+	if(345*fighter2.health/100 > 0)
+		ctx.fillRect(450,5,345*fighter2.health/100,20);
+	else
+		ctx.fillRect(450,5,0,20);
+}
 function run()
 {
 	init();
@@ -560,6 +607,26 @@ function run()
  	setInterval(gameLoop, 34);
 }
 
+function checkWin()
+{
+	if(gameState.WinFighter1)
+	{
+		drawText("FIGHTER 1 WON!!");
+	}
+	else if(gameState.WinFighter2)
+	{
+		drawText("FIGHTER 2 WON!!");
+	}
+}
+
+function drawText(text)
+{
+	var ctx = gameWindow.context;
+	ctx.font = "30px Comic Sans MS";
+	ctx.fillStyle = "red";
+	ctx.textAlign = "center";
+	ctx.fillText(text, gameWindow.canvas.width/2, gameWindow.canvas.height/2);
+}
 
 function checkInput()
 {
