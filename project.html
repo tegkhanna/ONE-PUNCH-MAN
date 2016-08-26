@@ -4,27 +4,31 @@
 	<title>Game</title>
 	<link rel="stylesheet" type="text/css" href="project.css">
 	<script type="text/javascript">
+
+
 	//game window in form of object
 	var gameWindow = 
 	{
 		canvas : null,
 		context : null,
-		init : function()
+		init : function()//initializes the canvas and context
 			{
 				this.canvas = document.getElementById("canvas");
 				this.context = this.canvas.getContext("2d");
 				this.canvas.tabIndex = 1000;
 			}
 	};
-	var down = [];
-	function keyIsDown(e)
+
+
+	var down = [];//array  having down key 
+	function keyIsDown(e)//adding key to donw
 {
 	if(down.indexOf(e.keyCode) == -1)
 	{
 		down.push(e.keyCode);
 	}
 }
-function keyIsUp(e)
+function keyIsUp(e)//remove key from down
 {
 	if(down.indexOf(e.keyCode) != -1)
 	{
@@ -32,7 +36,7 @@ function keyIsUp(e)
 	}
 }
 
-function checkKeyDown(x)
+function checkKeyDown(x)//checks that a given key x is down
 {
 	if(x == 'w')
 		x = 87;
@@ -59,7 +63,7 @@ function checkKeyDown(x)
 	else
 		return false;
 }
-	 var fighter1=
+	 var fighter1=//fighter 1 object..has images..posiition..velocities..updates
     {
     	imgStand1: new Image(),
     	imgStand2: new Image(),
@@ -69,7 +73,9 @@ function checkKeyDown(x)
      	imgPunchb: new Image(),
      	x:10,
      	y:450,
+     	width:80,
      	speed : 5,
+     	health:100,
      	uVer : 0,
      	aVer : 0,
      	dir : 1,
@@ -90,6 +96,7 @@ function checkKeyDown(x)
      	punch : function()
      	{
      		this.isPunching = true;
+     		this.width = 150;
      	},
      	update: function()
      	{
@@ -157,10 +164,56 @@ function checkKeyDown(x)
      		{
      			this.timeTillNextPunch--;
      			if(this.timeTillNextPunch == 20)
+     			{	
      				this.isPunching = false;
+     				this.width = 80;
+     			}
      		}
 
-     	}
+     	},
+     	isCollidng:function()
+		{
+			var t1 =  (this.x-fighter2.x)/2; var t2 = (this.y - fighter1.y)/2
+			if(this.dir == 1 && this.x < fighter2.x)
+			{
+				if((this.x + this.width - fighter2.x) > 0 && Math.abs(fighter1.y - fighter2.y) <80)
+				{
+					if(!this.isPunching)
+						this.x+=t1;fighter2.x-=t1;
+					return true;
+				}
+			}
+			else if(this.dir == -1 && this.x > fighter2.x)
+			{
+				if((this.x - fighter2.x - this.width) < 0 && Math.abs(fighter1.y - fighter2.y) <80)
+				{
+					//t1+=fighter2.width/2;
+					if(!this.isPunching)
+						this.x+=t1;fighter2.x-=t1;
+					return true;
+				}
+			}
+			else
+				return false;
+		},
+		doDamage: function()
+		{
+			if(this.isPunching && this.isCollidng())
+			{
+				if(this.dir==fighter2.dir)
+					fighter2.getDamaged(50);
+				else
+					fighter2.getDamaged(25);
+			}
+		},
+		getDamaged: function(x)
+		{
+			this.health-=x;
+			if(this.health <= 0)
+			{
+				console.log("youwin fighter2");
+			}
+		}
     };//creating an object
 
 
@@ -174,10 +227,12 @@ function checkKeyDown(x)
      	imgPunchb: new Image(),
      	x:690,
      	y:450,
+     	width:80,
      	speed : 5,
      	uVer : 0,
      	aVer : 0,
      	dir : -1,
+     	health : 100,
      	move:0,
      	curr:1,
      	timeTillNextPunch : 0,
@@ -195,6 +250,7 @@ function checkKeyDown(x)
      	punch : function()
      	{
      		this.isPunching = true;
+     		this.width = 150;
      	},
      	update: function()
      	{
@@ -253,32 +309,74 @@ function checkKeyDown(x)
      			this.isInAir = false;
      		}
 
-     		if(checkKeyDown(' ') && this.timeTillNextPunch == 0)
-     		{
-     			this.punch();
-     			this.timeTillNextPunch = 25;
-     		}
      		if(this.timeTillNextPunch!=0)
      		{
      			this.timeTillNextPunch--;
      			if(this.timeTillNextPunch == 20)
+     			{
      				this.isPunching = false;
+     				this.width = 80;
+     			}
      		}
 
-     	}
+     	},
+     	isCollidng:function()
+		{
+			var t1 =  (this.x-fighter1.x)/2; var t2 = (this.y - fighter2.y)/2
+			if(this.dir == 1 && this.x < fighter1.x)
+			{
+				if((this.x + this.width - fighter1.x) > 0 && Math.abs(fighter2.y - fighter1.y) <80)
+				{
+					if(!this.isPunching)
+						this.x+=t1;fighter1.x-=t1;
+					return true;
+				}
+			}
+			else if(this.dir == -1 && this.x > fighter1.x)
+			{
+				if((this.x - fighter1.x - this.width) < 0 && Math.abs(fighter2.y - fighter1.y) <80)
+				{
+					//t1+=fighter2.width/2;
+					if(!this.isPunching)
+						this.x+=t1;fighter1.x-=t1;
+					return true;
+				}
+			}
+			else
+				return false;
+		},
+		doDamage: function()
+		{
+			if(this.isPunching && this.isCollidng())
+			{
+				if(this.dir!=fighter1.dir)
+					fighter1.getDamaged(50);
+				else
+					fighter1.getDamaged(25);
+			}
+
+		},
+		getDamaged: function(x)
+		{
+			this.health-=x;
+			if(this.health <= 0)
+			{
+				console.log("youwin fighter 1");
+			}
+		}
     };//creating an object
 
 
 window.onload = function func()
 {   
      
- 	run();
+ 	run();//runs when system staRTS
 	
 
 
 }		
 
-function init()
+function init()//init window
 {
 
 
@@ -299,7 +397,7 @@ function init()
 	terrain.src="sprites/terrain.png";
 }
 
-function initFighters()
+function initFighters()//init fighters(sprite address)
 {
 
   
@@ -318,11 +416,12 @@ function initFighters()
 
 }
 
-function gameLoop()
+function gameLoop()//Main GAME loop
 {
 
 		checkInput();
 		drawFighters();
+		
 
 		
 		
@@ -330,8 +429,9 @@ function gameLoop()
 	
 }
 
-function drawFighters()
+function drawFighters()//update fighters
 {
+
 	var ctx = gameWindow.context;
 		if(!fighter1.isPunching)
 		{
@@ -352,6 +452,10 @@ function drawFighters()
 		{
 			ctx.clearRect(fighter2.x,fighter2.y,150,150);
 		}
+		fighter1.isCollidng();
+		fighter2.isCollidng();
+		fighter1.doDamage();
+		fighter2.doDamage();
 		fighter1.update();
 		fighter2.update();
 		if(fighter1.dir == 1)
@@ -455,7 +559,6 @@ function run()
  	initFighters();
  	setInterval(gameLoop, 34);
 }
-
 
 
 function checkInput()
