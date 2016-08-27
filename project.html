@@ -3,23 +3,74 @@
 <head>
 	<title>Game</title>
 	<link rel="stylesheet" type="text/css" href="project.css">
-	<script type="text/javascript">
 
+</head>
+
+<body style="background-color:black;" onresize = "gameWindow.resizeCanvas()">
+
+<canvas id="canvas" width="700px" height="700px">xx</canvas>
+
+	<script type="text/javascript">
+	const MAX_HEIGHT = 800;const MAX_WIDTH = 800;
+	var windowScaleW, windowScaleH;
+	var SCALE_W = 1;var SCALE_H = 1;
 
 	//game window in form of object
 	///MAIN GAME OBJECTS---> GAME WINDOW, GAME STATE(PLAY,LOSE,WHO WINS), GAME FUNCTIONS ---->INITIALIZER,GAMELOOP, RUN, ONLOAD FUNCTION(RUN)
+	var backgroundImg = [];
 	var gameWindow = 
 	{
 		canvas : null,
 		context : null,
 		terrain : new Image(),
+		height : 0,
+		width : 0,
+		bg_music : new sound("fighter_song.mp3"),
+		punch1_sound : new sound("punch1.mp3"),
+		punch2_sound : new sound("punch2.mp3"),
 		init : function()//initializes the canvas and context
 			{
 				this.canvas = document.getElementById("canvas");
 				this.context = this.canvas.getContext("2d");
 				this.terrain.src="sprites/terrain.png";
+				for(var i = 1; i <= 16; i++)
+				{
+					var img = new Image();
+					img.src = "sprites/gifback/" + i.toString() + ".png";
+					backgroundImg.push(img);
+				}
 				this.canvas.tabIndex = 1000;
+				this.height = this.canvas.height;
+				this.width = this.canvas.width;
+				SCALE_W = this.width / MAX_WIDTH;
+				SCALE_H = this.height / MAX_HEIGHT;
+				this.context.scale(SCALE_W, SCALE_H);
+				windowScaleW = this.canvas.width / window.innerWidth;
+				windowScaleH = this.canvas.height / window.innerHeight;
+				this.bg_music.play();
+				this.bg_music.volume(.25);
+			},
+		resizeCanvas : function()
+		{
+		
+			if(this.canvas.width < window.innerWidth )
+			{
+				
+				this.canvas.width = window.innerWidth*windowScaleW;
 			}
+			
+			if(this.canvas.height < window.innerHeight )
+			{
+				this.canvas.height = window.innerHeight*windowScaleH;
+			}
+			this.height = this.canvas.height;
+			this.width = this.canvas.width;
+			SCALE_W = this.width / MAX_WIDTH;
+			SCALE_H = this.height / MAX_HEIGHT;
+			this.context.scale(SCALE_W, SCALE_H);
+			console.log(SCALE_W, SCALE_H);
+		}
+
 	};
 
 	var gameState = 
@@ -53,7 +104,7 @@
 	{
 		var ctx = gameWindow.context;
 		ctx.font = "30px Comic Sans MS";
-		ctx.fillStyle = "red";
+		ctx.fillStyle = "white";
 		ctx.textAlign = "center";
 		ctx.fillText(text, gameWindow.canvas.width/2, gameWindow.canvas.height/2);
 	}
@@ -69,7 +120,7 @@
 	{
 		gameWindow.canvas.addEventListener("keydown", keyIsDown, false);
 		gameWindow.canvas.addEventListener("keyup", keyIsUp, false);
-		//gameWindow.canvas.addEventListener("keypress", keyIsPress, false);
+		gameWindow.canvas.addEventListener("resize", gameWindow.resizeCanvas, false);
 	}
 
 	function keyIsDown(e)//adding key to donw
@@ -119,35 +170,40 @@
 
 
 
-
+	var curr_punch = 0;
 
 	/*FIGHTER OBJECTS->(TO DO LATER MAKE AGENT OBJECT AND MAKE NESTED OBJECT AS FIGHTER1 AND FIGHTER2)
 	(THIS WILL HELP IN CREATING JUST ONE DAMAGE AND COLLISION CONTROL)(I THINK)(SOMETHING RELATED TO INHERRITANCE)*/
 
-	var fighter1=//fighter 1 object..has images..posiition..velocities..updates
-    {
-    	imgStand1: new Image(),
-    	imgStand2: new Image(),
-    	imgStand1b: new Image(),//B=TURNED AROUND
-    	imgStand2b: new Image(),
-     	imgPunch: new Image(),
-     	imgPunchb: new Image(),
-     	imgLose: new Image(),
-     	imgWin: new Image(),
-     	x:10,
-     	y:450,
-     	width:80,//CHANGES WITH PUNCH STATE
-     	speed : 5,//INCREASE LATER
-     	health:100,
-     	uVer : 0,
-     	aVer : 0,
-     	dir : 1,
-     	shouldMove:0,
-     	currImageTick:1,//without this image flip toooo fast
-     	timeTillNextPunch : 0,
-     	isInAir : false,
-     	isPunching : false,
-     	jump: function()
+	
+     function Fighter(xCord, yCord, xDir, _fighter)
+     {
+     	this.imgStand1= new Image();
+    	this.imgStand2= new Image();
+    	this.imgStand1b= new Image();//B=TURNED AROUND
+    	this.imgStand2b = new Image();
+     	this.imgPunch = new Image();
+     	this.imgPunchb = new Image();
+     	this.imgLose = new Image();
+     	this.imgWin = new Image();
+     	this.Upperb = new Image();
+     	this.Upper = new Image();
+     	this.x = xCord;
+     	this.y = yCord;
+     	this.width = 80;//CHANGES WITH PUNCH STATE
+     	this.speed = 5;//INCREASE LATER
+     	this.height = 150;
+     	this.health = 100;
+     	this.uVer = 0;
+     	this.aVer = 0;
+     	this.dir = xDir;
+     	this.shouldMove = 0;
+     	this.currImageTick = 1;//without this image flip toooo fast
+     	this.timeTillNextPunch = 0;
+     	this.isInAir = false;
+     	this.isPunching = false;
+     	this.fighter = _fighter;
+     	this.jump = function()
      	{	
      		if(!this.isInAir)
      		{	
@@ -155,13 +211,50 @@
      			this.aVer = 0.5;//change soon
      			this.isInAir = true;
      		}
-     	},
-     	punch : function()
+     	};
+     	this.punch = function()
      	{
      		this.isPunching = true;//function to set this false at bottom
      		this.width = 150;
-     	},
-     	update: function()
+     		if(curr_punch++ == 0)
+     			gameWindow.punch1_sound.play();
+     		else
+     		{
+     			gameWindow.punch2_sound.play();
+     			curr_punch--;
+     		}
+     		if(checkKeyDown('s') && this.isInAir && this.fighter == 1)
+     		{
+     			this.width = 150;
+     			this.height = 100;
+     		}
+     		if(checkKeyDown('5') && this.isInAir && this.fighter == 2)
+     		{
+     			this.width = 150;
+     			this.height = 100;
+     		}
+     	};
+     	this.getDamaged = function(x)
+		{
+			this.health-=x;
+			if(this.health <= 0)
+			{
+				gameState.PAUSE = 1;
+				if(this.fighter == 1)
+					gameState.WinFighter2 = 1;
+				else
+					gameState.WinFighter1 = 1;
+			}
+		};
+
+    }
+
+
+    var fighter1 = new Fighter(10, 450, 1, 1);
+    var fighter2 = new Fighter(700, 450, -1, 2);
+
+
+		fighter1.update = function()
      	{
      		if(checkKeyDown('q') && this.timeTillNextPunch == 0)
      		{
@@ -230,11 +323,12 @@
      			{	
      				this.isPunching = false;
      				this.width = 80;
+     				this.height = 150;
      			}
      		}
 
-     	},
-     	isCollidng:function()
+     	};
+     	fighter1.isCollidng = function()
 		{	//I KNEW WHAT I AM DOING.. NOW I SEEM TO FORGET .. THANSK TO MY PURSE AND PHONE.. THEY HELPED IN DESIGNING THIS :P
 			//UPDATE COMMENTS PLSSSS/
 			//P.S NO Y PUSH BACK :P UNNOTICABLE ;)/
@@ -260,8 +354,9 @@
 			}
 			else
 				return false;
-		},
-		doDamage: function()
+		};
+
+		fighter1.doDamage = function()
 		{
 			if(this.isPunching && this.isCollidng())
 			{
@@ -270,58 +365,10 @@
 				else
 					fighter2.getDamaged(25);
 			}
-		},
-		getDamaged: function(x)
-		{
-			this.health-=x;
-			if(this.health <= 0)
-			{
-				console.log("youwin fighter2");
-				gameState.PAUSE = 1;
-				gameState.WinFighter2 = 1;
-			}
-		}
-    };//creating an object
+		};
 
     //REFER FIGHTER 1 FOR COMMENTS
-    var fighter2=
-    {
-    	imgStand1: new Image(),
-    	imgStand2: new Image(),
-    	imgStand1b: new Image(),
-    	imgStand2b: new Image(),
-     	imgPunch: new Image(),
-     	imgPunchb: new Image(),
-     	imgLose: new Image(),
-     	imgWin: new Image(),
-     	x:690,
-     	y:450,
-     	width:80,
-     	speed : 5,
-     	uVer : 0,
-     	aVer : 0,
-     	dir : -1,
-     	health : 100,
-     	shouldMove:0,
-     	currImageTick:1,
-     	timeTillNextPunch : 0,
-     	isInAir : false,
-     	isPunching : false,
-     	jump: function()
-     	{	
-     		if(!this.isInAir)
-     		{	
-     			this.uVer = 14;
-     			this.aVer = 0.5;
-     			this.isInAir = true;
-     		}
-     	},
-     	punch : function()
-     	{
-     		this.isPunching = true;
-     		this.width = 150;
-     	},
-     	update: function()
+    fighter2.update = function()
      	{
      		if(checkKeyDown('p') && this.timeTillNextPunch == 0)
      		{
@@ -385,11 +432,12 @@
      			{
      				this.isPunching = false;
      				this.width = 80;
+     				this.height = 150;
      			}
      		}
 
-     	},
-     	isCollidng:function()
+     	};
+     	fighter2.isCollidng = function()
 		{
 			var t1 =  (this.x-fighter1.x)/2; var t2 = (this.y - fighter2.y)/2;
 			if(this.dir == 1 && this.x < fighter1.x)
@@ -413,8 +461,8 @@
 			}
 			else
 				return false;
-		},
-		doDamage: function()
+		};
+		fighter2.doDamage = function()
 		{
 			if(this.isPunching && this.isCollidng())
 			{
@@ -424,19 +472,8 @@
 					fighter1.getDamaged(25);
 			}
 
-		},
-		getDamaged: function(x)
-		{
-			this.health-=x;
-			if(this.health <= 0)
-			{
-				console.log("youwin fighter 1");
-				gameState.PAUSE = 1;
-				gameState.WinFighter1 = 1;
-			}
-		}
-    };//creating an object
-
+		};
+	
 
 
 
@@ -448,6 +485,8 @@
 	    fighter1.imgStand2b.src="sprites/blue/stand2b.png";
 	    fighter1.imgPunch.src="sprites/blue/punch.png";
 	    fighter1.imgPunchb.src="sprites/blue/punchb.png";
+	    fighter1.Upper.src="sprites/blue/upper.png";
+	    fighter1.Upperb.src="sprites/blue/upperb.png";
 	    fighter1.imgWin.src="sprites/blue/win.png";
 	    fighter1.imgLose.src="sprites/blue/lose.png";
 	    fighter2.imgStand1.src="sprites/hue/stand1.png";
@@ -456,6 +495,8 @@
 	    fighter2.imgStand2b.src="sprites/hue/stand2b.png";
 	    fighter2.imgPunch.src="sprites/hue/punch.png";
 	    fighter2.imgPunchb.src="sprites/hue/punchb.png";
+	    fighter2.Upper.src="sprites/hue/upper.png";
+	    fighter2.Upperb.src="sprites/hue/upperb.png";
 	    fighter2.imgWin.src="sprites/hue/win.png";
 	    fighter2.imgLose.src="sprites/hue/lose.png";
 	}
@@ -482,18 +523,22 @@
 				fighter1.update();
 				fighter2.update();
 			}
-			drawHealth();
+
 			drawFighter();
+			drawHealth();
 			checkWin();
 	}
+	var counter = 0;//for gif
 	function drawFighter()//DRAWS UPDATED FIGHTERS
 	{
 
 			var ctx = gameWindow.context;
 			//WAITING FOR BACK GROUND
 	    	ctx.drawImage(gameWindow.terrain, 0,600,800,200);//TERRAIN
-
-
+	    	
+	    	ctx.drawImage(backgroundImg[Math.floor((counter++)/2)], 0,0,800,600);//TERRAIN
+	    	if(counter==31)
+	    		counter = 0;
 	    	//PLAYER 1
 			if(gameState.WinFighter1 == 1)//WIN IMAGES
 			{
@@ -525,10 +570,15 @@
 				 		fighter1.currImageTick=0;
 				 	}
 				}
+				else if(fighter1.isPunching && checkKeyDown('s') && fighter1.isInAir)
+				{
+					ctx.drawImage(fighter1.Upper, fighter1.x,fighter1.y);
+				}
 				else if(fighter1.isPunching)
 				{
 					ctx.drawImage(fighter1.imgPunch, fighter1.x,fighter1.y);
 				}
+				
 			}
 			else
 			{
@@ -546,6 +596,10 @@
 				 	{
 				 		fighter1.currImageTick=0;
 				 	}
+				}
+				else if(fighter1.isPunching && checkKeyDown('s') && fighter1.isInAir)
+				{
+					ctx.drawImage(fighter1.Upperb, fighter1.x,fighter1.y);
 				}
 				else if(fighter1.isPunching)
 				{
@@ -585,6 +639,10 @@
 				 		fighter2.currImageTick=0;
 				 	}
 				}
+				else if(fighter2.isPunching && checkKeyDown('5') && fighter2.isInAir)
+				{
+					ctx.drawImage(fighter2.Upper, fighter2.x,fighter2.y);
+				}
 				else if(fighter2.isPunching)
 				{
 					ctx.drawImage(fighter2.imgPunch, fighter2.x,fighter2.y);
@@ -606,6 +664,10 @@
 				 	{
 				 		fighter2.currImageTick=0;
 				 	}
+				}
+				else if(fighter2.isPunching && checkKeyDown('5') && fighter2.isInAir)
+				{
+					ctx.drawImage(fighter2.Upperb, fighter2.x,fighter2.y);
 				}
 				else if(fighter2.isPunching)
 				{
@@ -642,11 +704,27 @@
 		}
 	}
 
+	function sound(src) 
+	{
+	    this.sound = document.createElement("AUDIO");
+	    this.sound.src = src;
+	    this.sound.setAttribute("preload", "auto");
+	    this.sound.setAttribute("controls", "none");
+	    this.sound.style.display = "none";
+	    document.body.appendChild(this.sound);
+	    this.play = function()
+	    {
+	        this.sound.play();
+	    }
+	    this.stop = function()
+	    {
+	        this.sound.pause();
+    	}
+    	this.volume = function(X)
+    	{
+    		this.sound.volume = X;
+    	}
+	}
 	</script>
-</head>
-<body style="background-color:black">
-<canvas id="canvas" width="800" height="800">xx</canvas>
-
-
 </body>
 </html>
