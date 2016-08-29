@@ -53,13 +53,13 @@
 		resizeCanvas : function()
 		{
 		
-			if(this.canvas.width < window.innerWidth )
+			if(this.canvas.width/window.innerWidth != windowScaleW )
 			{
 				
 				this.canvas.width = window.innerWidth*windowScaleW;
 			}
 			
-			if(this.canvas.height < window.innerHeight )
+			if(this.canvas.height/window.innerHeight != windowScaleH )
 			{
 				this.canvas.height = window.innerHeight*windowScaleH;
 			}
