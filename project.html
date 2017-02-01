@@ -80,26 +80,25 @@
 		WinFighter2:0,
 		WinFighter1:0
 	};
-
-	function init()//init window
-	{
-		gameWindow.init();
-		initFighters();  
-	}
+		
 	function gameLoop()//Main GAME loop
 	{
 		checkInput();
 		update();
 	}
+		
 	function run()
 	{
-		init();
+		gameWindow.init();//init window
+		initFighters(); //init fighters
 	 	setInterval(gameLoop, 34);
 	}
+		
 	window.onload = function func()
 	{
  		run();//runs when system staRTS
 	}
+	
 	function drawText(text)//SCREEN WRITING FN
 	{
 		var ctx = gameWindow.context;
